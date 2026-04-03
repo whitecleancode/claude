@@ -2,7 +2,9 @@
 
 import { Topbar } from "@/components/layout/topbar";
 import { useAuthStore } from "@/lib/stores/auth-store";
-import { Card } from "@/components/ui/card";
+import { HabitsWidget } from "@/components/features/dashboard/habits-widget";
+import { TasksWidget } from "@/components/features/dashboard/tasks-widget";
+import { NutritionWidget } from "@/components/features/dashboard/nutrition-widget";
 
 export default function DashboardPage() {
   const { profile } = useAuthStore();
@@ -29,24 +31,9 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          <Card hoverable>
-            <h3 className="text-sm font-medium text-slate-400 mb-3">
-              Привычки на сегодня
-            </h3>
-            <p className="text-slate-500 text-sm">Виджет будет в Phase 7</p>
-          </Card>
-          <Card hoverable>
-            <h3 className="text-sm font-medium text-slate-400 mb-3">
-              Активные задачи
-            </h3>
-            <p className="text-slate-500 text-sm">Виджет будет в Phase 7</p>
-          </Card>
-          <Card hoverable>
-            <h3 className="text-sm font-medium text-slate-400 mb-3">
-              Питание сегодня
-            </h3>
-            <p className="text-slate-500 text-sm">Виджет будет в Phase 7</p>
-          </Card>
+          <HabitsWidget />
+          <TasksWidget />
+          <NutritionWidget />
         </div>
       </div>
     </>
