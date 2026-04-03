@@ -1,22 +1,15 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config";
 
 export async function updateSession(request: NextRequest) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  // If Supabase is not configured, skip auth checks
-  if (!supabaseUrl || !supabaseKey || supabaseUrl.includes("placeholder")) {
-    return NextResponse.next({ request });
-  }
-
   let supabaseResponse = NextResponse.next({
     request,
   });
 
   const supabase = createServerClient(
-    supabaseUrl,
-    supabaseKey,
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
