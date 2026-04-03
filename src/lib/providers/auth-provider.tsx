@@ -1,13 +1,18 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { useAuthStore } from "@/lib/stores/auth-store";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { setUser, setProfile, setLoading } = useAuthStore();
 
   useEffect(() => {
+    if (!isSupabaseConfigured()) {
+      setLoading(false);
+      return;
+    }
+
     const supabase = createClient();
 
     // Initial session check
