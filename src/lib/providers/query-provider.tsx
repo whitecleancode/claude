@@ -1,6 +1,6 @@
 "use client";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, MutationCache } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 
 export function QueryProvider({ children }: { children: ReactNode }) {
@@ -11,8 +11,17 @@ export function QueryProvider({ children }: { children: ReactNode }) {
           queries: {
             staleTime: 60 * 1000,
             refetchOnWindowFocus: false,
+            retry: 1,
+          },
+          mutations: {
+            retry: false,
           },
         },
+        mutationCache: new MutationCache({
+          onError: (error) => {
+            console.error("[Mutation Error]", error.message);
+          },
+        }),
       })
   );
 
