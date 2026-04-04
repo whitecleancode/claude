@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useAuthStore } from "@/lib/stores/auth-store";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { setUser, setProfile, setLoading } = useAuthStore();
+  const { setUser, setProfile, setLoading, isLoading } = useAuthStore();
 
   useEffect(() => {
     const supabase = createClient();
@@ -45,6 +45,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => subscription.unsubscribe();
   }, [setUser, setProfile, setLoading]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-surface-primary">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 rounded-full border-2 border-neon-cyan border-t-transparent animate-spin" />
+          <p className="text-sm text-slate-400">Загрузка...</p>
+        </div>
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }

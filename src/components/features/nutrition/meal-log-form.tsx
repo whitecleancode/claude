@@ -209,18 +209,16 @@ export function MealLogForm({
           onChange={(e) => setMealType(e.target.value)}
         />
 
-        {basePer100 && (
-          <Input
-            id="grams"
-            name="grams"
-            type="number"
-            label="Порция (граммы)"
-            placeholder="100"
-            value={grams}
-            onChange={(e) => handleGramsChange(e.target.value)}
-            min="1"
-          />
-        )}
+        <Input
+          id="grams"
+          name="grams"
+          type="number"
+          label={`Порция (г)${basePer100 ? " — авто-пересчёт БЖУ" : ""}`}
+          placeholder="100"
+          value={grams}
+          onChange={(e) => handleGramsChange(e.target.value)}
+          min="1"
+        />
 
         <div className="grid grid-cols-2 gap-3">
           <Input
