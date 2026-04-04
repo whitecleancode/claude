@@ -23,7 +23,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden border-t border-white/10 bg-surface-primary/90 backdrop-blur-md">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden border-t border-white/10 bg-surface-primary/90 backdrop-blur-md" style={{ paddingBottom: "var(--safe-bottom)" }}>
       <div className="flex items-center justify-around h-16 px-2">
         {TABS.map((tab) => {
           const isActive = pathname.startsWith(tab.href);

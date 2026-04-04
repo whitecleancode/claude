@@ -5,6 +5,7 @@ import { ru } from "date-fns/locale";
 import { cn } from "@/lib/utils/cn";
 import { getLast7Days, toDateString } from "@/lib/utils/dates";
 import { useToggleHabitLog } from "@/lib/hooks/use-habits";
+import { hapticLight, hapticSuccess } from "@/lib/capacitor/native";
 import { Check } from "lucide-react";
 
 interface HabitTrackerProps {
@@ -30,13 +31,14 @@ export function HabitTracker({
         return (
           <button
             key={dateStr}
-            onClick={() =>
+            onClick={() => {
+              if (isCompleted) hapticLight(); else hapticSuccess();
               toggle.mutate({
                 habitId,
                 date: dateStr,
                 completed: isCompleted,
-              })
-            }
+              });
+            }}
             className={cn(
               "flex flex-col items-center gap-1 group cursor-pointer"
             )}
