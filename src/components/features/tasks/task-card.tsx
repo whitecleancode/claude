@@ -2,11 +2,11 @@
 
 import { format, isPast, isToday as isDateToday } from "date-fns";
 import { ru } from "date-fns/locale";
-import { Check, Calendar } from "lucide-react";
+import { Check, Calendar, Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Card } from "@/components/ui/card";
 import { PriorityBadge } from "./priority-badge";
-import { useCompleteTask } from "@/lib/hooks/use-tasks";
+import { useCompleteTask, useDeleteTask } from "@/lib/hooks/use-tasks";
 import type { Task, TaskCategory } from "@/types/tasks";
 
 interface TaskCardProps {
@@ -17,6 +17,7 @@ interface TaskCardProps {
 
 export function TaskCard({ task, category, onEdit }: TaskCardProps) {
   const complete = useCompleteTask();
+  const deleteTask = useDeleteTask();
   const isDone = task.status === "done";
   const isOverdue =
     task.due_date && !isDone && isPast(new Date(task.due_date)) && !isDateToday(new Date(task.due_date));
@@ -28,14 +29,19 @@ export function TaskCard({ task, category, onEdit }: TaskCardProps) {
     >
       <button
         onClick={() => complete.mutate({ id: task.id, done: !isDone })}
+        disabled={complete.isPending}
         className={cn(
-          "mt-0.5 h-5 w-5 rounded-md border flex items-center justify-center shrink-0 transition-all cursor-pointer",
+          "mt-0.5 h-5 w-5 rounded-md border flex items-center justify-center shrink-0 transition-all cursor-pointer disabled:opacity-50",
           isDone
             ? "bg-neon-green border-neon-green"
             : "border-white/20 hover:border-neon-cyan"
         )}
       >
-        {isDone && <Check className="h-3 w-3 text-slate-950" />}
+        {complete.isPending ? (
+          <Loader2 className="h-3 w-3 animate-spin text-slate-400" />
+        ) : isDone ? (
+          <Check className="h-3 w-3 text-slate-950" />
+        ) : null}
       </button>
 
       <div
@@ -76,6 +82,18 @@ export function TaskCard({ task, category, onEdit }: TaskCardProps) {
           )}
         </div>
       </div>
+
+      <button
+        onClick={() => deleteTask.mutate(task.id)}
+        disabled={deleteTask.isPending}
+        className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-white/10 transition-all cursor-pointer shrink-0 disabled:opacity-50"
+      >
+        {deleteTask.isPending ? (
+          <Loader2 className="h-3.5 w-3.5 text-slate-400 animate-spin" />
+        ) : (
+          <Trash2 className="h-3.5 w-3.5 text-slate-400" />
+        )}
+      </button>
     </Card>
   );
 }

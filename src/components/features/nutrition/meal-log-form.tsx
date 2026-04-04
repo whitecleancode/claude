@@ -5,17 +5,18 @@ import { Modal } from "@/components/ui/modal";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useCreateNutritionLog } from "@/lib/hooks/use-nutrition";
+import { useCreateNutritionLog, useUpdateNutritionLog } from "@/lib/hooks/use-nutrition";
 import { nutritionLogSchema } from "@/lib/validators/nutrition";
 import { useFoodSearch, type FoodResult } from "@/lib/hooks/use-food-search";
 import { Search, Loader2 } from "lucide-react";
-import type { MealType } from "@/types/nutrition";
+import type { MealType, NutritionLog } from "@/types/nutrition";
 
 interface MealLogFormProps {
   isOpen: boolean;
   onClose: () => void;
   date: string;
   defaultMealType?: MealType;
+  editEntry?: NutritionLog | null;
 }
 
 const mealTypeOptions = [
@@ -30,8 +31,12 @@ export function MealLogForm({
   onClose,
   date,
   defaultMealType = "snack",
+  editEntry = null,
 }: MealLogFormProps) {
   const create = useCreateNutritionLog();
+  const update = useUpdateNutritionLog();
+  const isEdit = !!editEntry;
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [nameQuery, setNameQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -39,9 +44,24 @@ export function MealLogForm({
   const [protein, setProtein] = useState("0");
   const [fat, setFat] = useState("0");
   const [carbs, setCarbs] = useState("0");
+  const [mealType, setMealType] = useState<string>(defaultMealType);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { results, isLoading } = useFoodSearch(nameQuery);
+
+  // Pre-fill when editing
+  useEffect(() => {
+    if (editEntry) {
+      setNameQuery(editEntry.name);
+      setCalories(String(editEntry.calories));
+      setProtein(String(editEntry.protein));
+      setFat(String(editEntry.fat));
+      setCarbs(String(editEntry.carbs));
+      setMealType(editEntry.meal_type ?? defaultMealType);
+    } else {
+      resetForm();
+    }
+  }, [editEntry, defaultMealType]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -74,6 +94,7 @@ export function MealLogForm({
     setProtein("0");
     setFat("0");
     setCarbs("0");
+    setMealType(defaultMealType);
     setErrors({});
   };
 
@@ -81,10 +102,9 @@ export function MealLogForm({
     e.preventDefault();
     setErrors({});
 
-    const fd = new FormData(e.currentTarget);
     const values = {
       name: nameQuery,
-      meal_type: fd.get("meal_type") as string,
+      meal_type: mealType,
       logged_date: date,
       calories,
       protein,
@@ -102,7 +122,11 @@ export function MealLogForm({
       return;
     }
 
-    await create.mutateAsync(result.data);
+    if (isEdit) {
+      await update.mutateAsync({ ...result.data, id: editEntry.id });
+    } else {
+      await create.mutateAsync(result.data);
+    }
     resetForm();
     onClose();
   };
@@ -113,7 +137,7 @@ export function MealLogForm({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Добавить приём пищи">
+    <Modal isOpen={isOpen} onClose={handleClose} title={isEdit ? "Редактировать запись" : "Добавить приём пищи"}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Food name with auto-suggest */}
         <div className="relative" ref={dropdownRef}>
@@ -138,7 +162,7 @@ export function MealLogForm({
           </div>
 
           {showDropdown && results.length > 0 && (
-            <div className="absolute z-50 mt-1 w-full rounded-lg border border-white/10 bg-surface-secondary shadow-lg overflow-hidden">
+            <div className="absolute z-50 mt-1 w-full rounded-lg border border-white/10 bg-surface-secondary shadow-lg overflow-hidden max-h-60 overflow-y-auto">
               {results.map((food, idx) => (
                 <button
                   key={idx}
@@ -164,7 +188,8 @@ export function MealLogForm({
           name="meal_type"
           label="Приём пищи"
           options={mealTypeOptions}
-          defaultValue={defaultMealType}
+          value={mealType}
+          onChange={(e) => setMealType(e.target.value)}
         />
 
         <div className="grid grid-cols-2 gap-3">
@@ -225,8 +250,8 @@ export function MealLogForm({
           >
             Отмена
           </Button>
-          <Button type="submit" className="flex-1" loading={create.isPending}>
-            Добавить
+          <Button type="submit" className="flex-1" loading={create.isPending || update.isPending}>
+            {isEdit ? "Сохранить" : "Добавить"}
           </Button>
         </div>
       </form>

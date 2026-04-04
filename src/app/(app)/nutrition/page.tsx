@@ -27,13 +27,21 @@ export default function NutritionPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [goalsOpen, setGoalsOpen] = useState(false);
   const [defaultMeal, setDefaultMeal] = useState<MealType>("snack");
+  const [editEntry, setEditEntry] = useState<import("@/types/nutrition").NutritionLog | null>(null);
 
   const { data: logs, isLoading } = useNutritionLogs(dateStr);
   const { data: goal } = useNutritionGoal();
   const summary = useDailySummary(logs);
 
   const openMealForm = (mealType: MealType) => {
+    setEditEntry(null);
     setDefaultMeal(mealType);
+    setFormOpen(true);
+  };
+
+  const openEditForm = (log: import("@/types/nutrition").NutritionLog) => {
+    setEditEntry(log);
+    setDefaultMeal((log.meal_type as MealType) ?? "snack");
     setFormOpen(true);
   };
 
@@ -118,7 +126,7 @@ export default function NutritionPage() {
                 )}
 
                 {mealLogs.map((log) => (
-                  <MealCard key={log.id} log={log} />
+                  <MealCard key={log.id} log={log} onEdit={openEditForm} />
                 ))}
               </Card>
             );
@@ -127,9 +135,10 @@ export default function NutritionPage() {
 
       <MealLogForm
         isOpen={formOpen}
-        onClose={() => setFormOpen(false)}
+        onClose={() => { setFormOpen(false); setEditEntry(null); }}
         date={dateStr}
         defaultMealType={defaultMeal}
+        editEntry={editEntry}
       />
       <GoalsForm
         isOpen={goalsOpen}

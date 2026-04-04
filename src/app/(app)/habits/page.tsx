@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import type { Habit } from "@/types/habits";
 import { Topbar } from "@/components/layout/topbar";
 import { Button } from "@/components/ui/button";
 import { SkeletonCard } from "@/components/ui/skeleton";
@@ -12,6 +13,7 @@ import { toDateString, getLast7Days } from "@/lib/utils/dates";
 
 export default function HabitsPage() {
   const [formOpen, setFormOpen] = useState(false);
+  const [editHabit, setEditHabit] = useState<Habit | null>(null);
   const { data: habits, isLoading } = useHabitsWithStats();
 
   const today = new Date();
@@ -65,13 +67,14 @@ export default function HabitsPage() {
                     ?.filter((l) => l.habit_id === habit.id)
                     .map((l) => l.completed_date) ?? []
                 }
+                onEdit={(h) => { setEditHabit(h); setFormOpen(true); }}
               />
             ))}
           </div>
         )}
       </div>
 
-      <HabitForm isOpen={formOpen} onClose={() => setFormOpen(false)} />
+      <HabitForm isOpen={formOpen} onClose={() => { setFormOpen(false); setEditHabit(null); }} habit={editHabit} />
     </>
   );
 }

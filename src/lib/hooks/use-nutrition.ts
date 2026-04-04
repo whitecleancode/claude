@@ -82,6 +82,26 @@ export function useCreateNutritionLog() {
   });
 }
 
+export function useUpdateNutritionLog() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, ...values }: NutritionLogFormValues & { id: string }) => {
+      const { data, error } = await getSupabase()
+        .from("nutrition_logs")
+        .update(values)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["nutrition_logs"] });
+    },
+  });
+}
+
 export function useDeleteNutritionLog() {
   const queryClient = useQueryClient();
 
