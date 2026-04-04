@@ -14,7 +14,7 @@ import { toDateString } from "@/lib/utils/dates";
 
 export function NutritionWidget() {
   const todayStr = toDateString(new Date());
-  const { data: logs, isLoading } = useNutritionLogs(todayStr);
+  const { data: logs, isLoading, error } = useNutritionLogs(todayStr);
   const { data: goal } = useNutritionGoal();
   const summary = useDailySummary(logs);
 
@@ -41,7 +41,11 @@ export function NutritionWidget() {
         </div>
       )}
 
-      {!isLoading && (
+      {!isLoading && error && (
+        <p className="text-sm text-neon-pink/80 py-2">Ошибка загрузки</p>
+      )}
+
+      {!isLoading && !error && (
         <MacroRings summary={summary} goal={goal ?? null} compact />
       )}
     </Card>

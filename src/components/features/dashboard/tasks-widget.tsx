@@ -11,7 +11,7 @@ import { useTasks } from "@/lib/hooks/use-tasks";
 import { cn } from "@/lib/utils/cn";
 
 export function TasksWidget() {
-  const { data: tasks, isLoading } = useTasks({ status: "all" });
+  const { data: tasks, isLoading, error } = useTasks({ status: "all" });
 
   const activeTasks = tasks
     ?.filter((t) => t.status !== "done" && t.status !== "cancelled")
@@ -39,6 +39,10 @@ export function TasksWidget() {
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
         </div>
+      )}
+
+      {!isLoading && error && (
+        <p className="text-sm text-neon-pink/80 py-2">Ошибка загрузки</p>
       )}
 
       {activeTasks && activeTasks.length === 0 && (

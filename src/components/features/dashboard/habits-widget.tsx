@@ -10,7 +10,7 @@ import { toDateString } from "@/lib/utils/dates";
 import { cn } from "@/lib/utils/cn";
 
 export function HabitsWidget() {
-  const { data: habits, isLoading } = useHabitsWithStats();
+  const { data: habits, isLoading, error } = useHabitsWithStats();
   const toggle = useToggleHabitLog();
   const todayStr = toDateString(new Date());
 
@@ -39,7 +39,11 @@ export function HabitsWidget() {
         </div>
       )}
 
-      {habits && habits.length === 0 && (
+      {!isLoading && error && (
+        <p className="text-sm text-neon-pink/80 py-2">Ошибка загрузки</p>
+      )}
+
+      {!isLoading && !error && habits && habits.length === 0 && (
         <p className="text-sm text-slate-500 py-2">Нет привычек</p>
       )}
 

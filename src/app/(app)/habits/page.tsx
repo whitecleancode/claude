@@ -14,7 +14,7 @@ import { toDateString, getLast7Days } from "@/lib/utils/dates";
 export default function HabitsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editHabit, setEditHabit] = useState<Habit | null>(null);
-  const { data: habits, isLoading } = useHabitsWithStats();
+  const { data: habits, isLoading, error } = useHabitsWithStats();
 
   const today = new Date();
   const days7 = getLast7Days(today);
@@ -28,7 +28,7 @@ export default function HabitsPage() {
       <div className="p-4 lg:p-6 space-y-4">
         <div className="flex items-center justify-between">
           <p className="text-sm text-slate-400">
-            {habits ? `${habits.length} привычек` : "Загрузка..."}
+            {error ? "Ошибка загрузки" : habits ? `${habits.length} привычек` : "Загрузка..."}
           </p>
           <Button size="sm" onClick={() => setFormOpen(true)}>
             <Plus className="h-4 w-4" />

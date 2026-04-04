@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAuthStore } from "@/lib/stores/auth-store";
 
@@ -16,48 +17,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (mounted) setLoading(false);
     }, 3000);
 
-    // Use getSession (reads localStorage first, much faster than getUser)
-    supabase.auth
-      .getSession()
-      .then(({ data: { session } }) => {
-        if (!mounted) return;
-        const user = session?.user ?? null;
-        setUser(user);
-        setLoading(false);
-        clearTimeout(timeout);
-
-        if (user) {
-          supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", user.id)
-            .single()
-            .then(({ data }) => {
-              if (mounted) setProfile(data);
-            });
-        }
-      })
-      .catch(() => {
-        if (mounted) {
-          setLoading(false);
-          clearTimeout(timeout);
-        }
-      });
-
-    // Listen for auth changes
+    // Single source of truth: onAuthStateChange handles INITIAL_SESSION + all changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      setLoading(false);
 
-      if (currentUser) {
+      const user = session?.user ?? null;
+      setUser(user);
+      setLoading(false);
+      clearTimeout(timeout);
+
+      if (user) {
         const { data } = await supabase
           .from("profiles")
           .select("*")
-          .eq("id", currentUser.id)
+          .eq("id", user.id)
           .single();
         if (mounted) setProfile(data);
       } else {

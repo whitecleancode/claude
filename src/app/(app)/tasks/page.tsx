@@ -19,7 +19,7 @@ export default function TasksPage() {
     priority: "all",
   });
 
-  const { data: tasks, isLoading } = useTasks(filters);
+  const { data: tasks, isLoading, error } = useTasks(filters);
   const { data: categories } = useTaskCategories();
 
   const handleEdit = (task: Task) => {
@@ -38,7 +38,7 @@ export default function TasksPage() {
       <div className="p-4 lg:p-6 space-y-4">
         <div className="flex items-center justify-between">
           <p className="text-sm text-slate-400">
-            {tasks ? `${tasks.length} задач` : "Загрузка..."}
+            {error ? "Ошибка загрузки" : tasks ? `${tasks.length} задач` : "Загрузка..."}
           </p>
           <Button size="sm" onClick={() => setFormOpen(true)}>
             <Plus className="h-4 w-4" />

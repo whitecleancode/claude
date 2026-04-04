@@ -29,7 +29,7 @@ export default function NutritionPage() {
   const [defaultMeal, setDefaultMeal] = useState<MealType>("snack");
   const [editEntry, setEditEntry] = useState<import("@/types/nutrition").NutritionLog | null>(null);
 
-  const { data: logs, isLoading } = useNutritionLogs(dateStr);
+  const { data: logs, isLoading, error } = useNutritionLogs(dateStr);
   const { data: goal } = useNutritionGoal();
   const summary = useDailySummary(logs);
 
@@ -93,7 +93,13 @@ export default function NutritionPage() {
           </div>
         )}
 
-        {!isLoading &&
+        {!isLoading && error && (
+          <Card className="p-4 text-center">
+            <p className="text-sm text-neon-pink/80">Ошибка загрузки данных</p>
+          </Card>
+        )}
+
+        {!isLoading && !error &&
           (Object.keys(MEAL_TYPES) as MealType[]).map((mealType) => {
             const mealLogs = logs?.filter((l) => l.meal_type === mealType) ?? [];
             const mealInfo = MEAL_TYPES[mealType];
