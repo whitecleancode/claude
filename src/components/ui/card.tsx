@@ -23,8 +23,8 @@ export function Card({
   return (
     <div
       className={cn(
-        "glass-card p-6",
-        hoverable && "transition-all duration-300 hover:bg-glass-hover hover:border-glass-border-hover",
+        "glass-card glass-card-glow p-6",
+        hoverable && "transition-all duration-300 hover:bg-glass-hover hover:border-glass-border-hover hover:shadow-[0_0_25px_rgba(6,182,212,0.2),0_0_50px_rgba(168,85,247,0.1)] hover:scale-[1.01]",
         glow && glowMap[glow],
         className
       )}

@@ -8,6 +8,14 @@ const colorMap = {
   amber: "stroke-neon-amber",
 } as const;
 
+const glowColorMap = {
+  cyan: "#06b6d4",
+  purple: "#a855f7",
+  pink: "#ec4899",
+  green: "#22c55e",
+  amber: "#f59e0b",
+} as const;
+
 interface ProgressRingProps {
   value: number;
   max: number;
@@ -53,6 +61,7 @@ export function ProgressRing({
           strokeDashoffset={offset}
           strokeLinecap="round"
           className={cn("transition-all duration-700", colorMap[color])}
+          style={{ filter: `drop-shadow(0 0 4px ${glowColorMap[color]})` }}
         />
       </svg>
       {children && (

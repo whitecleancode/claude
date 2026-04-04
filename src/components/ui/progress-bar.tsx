@@ -8,6 +8,14 @@ const colorMap = {
   amber: "from-neon-amber-dark to-neon-amber-light",
 } as const;
 
+const glowMap = {
+  cyan: "shadow-[0_0_8px_rgba(6,182,212,0.4)]",
+  purple: "shadow-[0_0_8px_rgba(168,85,247,0.4)]",
+  pink: "shadow-[0_0_8px_rgba(236,72,153,0.4)]",
+  green: "shadow-[0_0_8px_rgba(34,197,94,0.4)]",
+  amber: "shadow-[0_0_8px_rgba(245,158,11,0.4)]",
+} as const;
+
 interface ProgressBarProps {
   value: number;
   max: number;
@@ -39,7 +47,8 @@ export function ProgressBar({
         <div
           className={cn(
             "h-full rounded-full bg-gradient-to-r transition-all duration-500",
-            colorMap[color]
+            colorMap[color],
+            glowMap[color]
           )}
           style={{ width: `${percent}%` }}
         />

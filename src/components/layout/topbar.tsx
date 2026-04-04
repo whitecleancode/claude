@@ -30,7 +30,9 @@ export function Topbar({ title }: TopbarProps) {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 lg:px-6 border-b border-white/10 bg-surface-primary/80 backdrop-blur-md">
+    <header className="relative sticky top-0 z-30 flex items-center justify-between h-16 px-4 lg:px-6 border-b border-white/10 bg-surface-primary/80 backdrop-blur-md">
+      {/* Neon gradient line */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-cyan" />
       <div className="flex items-center gap-3">
         <button
           onClick={toggleSidebar}

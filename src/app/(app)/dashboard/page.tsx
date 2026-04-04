@@ -21,19 +21,22 @@ export default function DashboardPage() {
               {profile?.full_name ?? "друг"}
             </span>
           </h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 mt-2 rounded-full bg-white/5 border border-white/10 text-xs text-slate-400">
+            📅{" "}
             {new Date().toLocaleDateString("ru-RU", {
               weekday: "long",
               day: "numeric",
               month: "long",
             })}
-          </p>
+          </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <HabitsWidget />
           <TasksWidget />
-          <NutritionWidget />
+          <div className="md:col-span-2">
+            <NutritionWidget />
+          </div>
         </div>
       </div>
     </>
