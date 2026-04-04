@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAuthStore } from "@/lib/stores/auth-store";
 
@@ -12,21 +11,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const supabase = createClient();
     let mounted = true;
 
-    // Hard timeout — never block UI longer than 3s
-    const timeout = setTimeout(() => {
-      if (mounted) setLoading(false);
-    }, 3000);
+    async function initAuth() {
+      try {
+        // getSession() reads from localStorage/cookies — no network request, resolves in < 5ms.
+        // This avoids the 3-second timeout race that caused infinite skeleton loading on refresh.
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
 
-    // Single source of truth: onAuthStateChange handles INITIAL_SESSION + all changes
+        if (!mounted) return;
+
+        if (error) {
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+          return;
+        }
+
+        const user = session?.user ?? null;
+        setUser(user);
+        setLoading(false);
+
+        if (user) {
+          const { data } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .single();
+          if (mounted) setProfile(data);
+        } else {
+          setProfile(null);
+        }
+      } catch {
+        if (mounted) {
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+        }
+      }
+    }
+
+    initAuth();
+
+    // onAuthStateChange handles all subsequent events after the initial getSession() call:
+    // TOKEN_REFRESHED, SIGNED_IN (from another tab), SIGNED_OUT, PASSWORD_RECOVERY, etc.
+    // INITIAL_SESSION is skipped — already handled by getSession() above.
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
+      if (event === "INITIAL_SESSION") return;
 
       const user = session?.user ?? null;
       setUser(user);
-      setLoading(false);
-      clearTimeout(timeout);
 
       if (user) {
         const { data } = await supabase
@@ -42,7 +80,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       mounted = false;
-      clearTimeout(timeout);
       subscription.unsubscribe();
     };
   }, [setUser, setProfile, setLoading]);
