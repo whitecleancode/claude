@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { StreakBadge } from "./streak-badge";
 import { HabitTracker } from "./habit-tracker";
+import { useDeleteHabit } from "@/lib/hooks/use-habits";
 import type { Habit, HabitWithStats } from "@/types/habits";
 
 interface HabitCardProps {
@@ -14,6 +15,8 @@ interface HabitCardProps {
 }
 
 export function HabitCard({ habit, completedDates, onEdit }: HabitCardProps) {
+  const deleteHabit = useDeleteHabit();
+
   return (
     <Card hoverable className="space-y-3 group">
       <div className="flex items-center justify-between">
@@ -39,6 +42,17 @@ export function HabitCard({ habit, completedDates, onEdit }: HabitCardProps) {
               <Pencil className="h-3.5 w-3.5 text-slate-400" />
             </button>
           )}
+          <button
+            onClick={() => deleteHabit.mutate(habit.id)}
+            disabled={deleteHabit.isPending}
+            className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-white/10 transition-all cursor-pointer disabled:opacity-50"
+          >
+            {deleteHabit.isPending ? (
+              <Loader2 className="h-3.5 w-3.5 text-slate-400 animate-spin" />
+            ) : (
+              <Trash2 className="h-3.5 w-3.5 text-slate-400" />
+            )}
+          </button>
         </div>
       </div>
 

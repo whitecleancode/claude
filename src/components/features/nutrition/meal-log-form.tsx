@@ -44,6 +44,8 @@ export function MealLogForm({
   const [protein, setProtein] = useState("0");
   const [fat, setFat] = useState("0");
   const [carbs, setCarbs] = useState("0");
+  const [grams, setGrams] = useState("100");
+  const [basePer100, setBasePer100] = useState<FoodResult | null>(null);
   const [mealType, setMealType] = useState<string>(defaultMealType);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -81,11 +83,24 @@ export function MealLogForm({
 
   const selectFood = (food: FoodResult) => {
     setNameQuery(food.name);
+    setBasePer100(food);
+    setGrams("100");
     setCalories(String(food.calories));
     setProtein(String(food.protein));
     setFat(String(food.fat));
     setCarbs(String(food.carbs));
     setShowDropdown(false);
+  };
+
+  const handleGramsChange = (g: string) => {
+    setGrams(g);
+    if (basePer100 && g) {
+      const ratio = Number(g) / 100;
+      setCalories(String(Math.round(basePer100.calories * ratio)));
+      setProtein(String(Math.round(basePer100.protein * ratio * 10) / 10));
+      setFat(String(Math.round(basePer100.fat * ratio * 10) / 10));
+      setCarbs(String(Math.round(basePer100.carbs * ratio * 10) / 10));
+    }
   };
 
   const resetForm = () => {
@@ -94,6 +109,8 @@ export function MealLogForm({
     setProtein("0");
     setFat("0");
     setCarbs("0");
+    setGrams("100");
+    setBasePer100(null);
     setMealType(defaultMealType);
     setErrors({});
   };
@@ -191,6 +208,19 @@ export function MealLogForm({
           value={mealType}
           onChange={(e) => setMealType(e.target.value)}
         />
+
+        {basePer100 && (
+          <Input
+            id="grams"
+            name="grams"
+            type="number"
+            label="Порция (граммы)"
+            placeholder="100"
+            value={grams}
+            onChange={(e) => handleGramsChange(e.target.value)}
+            min="1"
+          />
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           <Input
