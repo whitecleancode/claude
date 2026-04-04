@@ -9,27 +9,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const supabase = createClient();
+    let mounted = true;
 
-    // Initial session check
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-      if (user) {
-        supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single()
-          .then(({ data }) => setProfile(data));
-      }
-      setLoading(false);
-    });
+    // Hard timeout — never block UI longer than 3s
+    const timeout = setTimeout(() => {
+      if (mounted) setLoading(false);
+    }, 3000);
+
+    // Use getSession (reads localStorage first, much faster than getUser)
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        if (!mounted) return;
+        const user = session?.user ?? null;
+        setUser(user);
+        setLoading(false);
+        clearTimeout(timeout);
+
+        if (user) {
+          supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .single()
+            .then(({ data }) => {
+              if (mounted) setProfile(data);
+            });
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setLoading(false);
+          clearTimeout(timeout);
+        }
+      });
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return;
       const currentUser = session?.user ?? null;
       setUser(currentUser);
+      setLoading(false);
 
       if (currentUser) {
         const { data } = await supabase
@@ -37,13 +59,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .select("*")
           .eq("id", currentUser.id)
           .single();
-        setProfile(data);
+        if (mounted) setProfile(data);
       } else {
         setProfile(null);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, [setUser, setProfile, setLoading]);
 
   if (isLoading) {
