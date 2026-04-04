@@ -37,7 +37,7 @@ export function HabitCard({ habit, completedDates, onEdit }: HabitCardProps) {
           {onEdit && (
             <button
               onClick={() => onEdit(habit)}
-              className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-white/10 transition-all cursor-pointer"
+              className="p-1 rounded opacity-100 lg:opacity-0 lg:group-hover:opacity-100 hover:bg-white/10 transition-all cursor-pointer"
             >
               <Pencil className="h-3.5 w-3.5 text-slate-400" />
             </button>
@@ -45,7 +45,7 @@ export function HabitCard({ habit, completedDates, onEdit }: HabitCardProps) {
           <button
             onClick={() => deleteHabit.mutate(habit.id)}
             disabled={deleteHabit.isPending}
-            className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-white/10 transition-all cursor-pointer disabled:opacity-50"
+            className="p-1 rounded opacity-100 lg:opacity-0 lg:group-hover:opacity-100 hover:bg-white/10 transition-all cursor-pointer disabled:opacity-50"
           >
             {deleteHabit.isPending ? (
               <Loader2 className="h-3.5 w-3.5 text-slate-400 animate-spin" />

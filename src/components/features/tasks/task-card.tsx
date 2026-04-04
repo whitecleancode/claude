@@ -86,7 +86,7 @@ export function TaskCard({ task, category, onEdit }: TaskCardProps) {
       <button
         onClick={() => deleteTask.mutate(task.id)}
         disabled={deleteTask.isPending}
-        className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-white/10 transition-all cursor-pointer shrink-0 disabled:opacity-50"
+        className="p-1 rounded opacity-100 lg:opacity-0 lg:group-hover:opacity-100 hover:bg-white/10 transition-all cursor-pointer shrink-0 disabled:opacity-50"
       >
         {deleteTask.isPending ? (
           <Loader2 className="h-3.5 w-3.5 text-slate-400 animate-spin" />
