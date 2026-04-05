@@ -10,6 +10,8 @@ import { WeeklyRadar } from "@/components/features/dashboard/weekly-radar";
 import { DailyProgress } from "@/components/features/dashboard/daily-progress";
 import { StreakCounter } from "@/components/features/dashboard/streak-counter";
 import { MoodWidget } from "@/components/features/dashboard/mood-widget";
+import { Confetti } from "@/components/ui/confetti";
+import { useHabitsWithStats } from "@/lib/hooks/use-habits";
 
 const QUOTES = [
   "Дисциплина — это выбор между тем, чего ты хочешь сейчас, и тем, чего ты хочешь больше всего.",
@@ -55,9 +57,12 @@ export default function DashboardPage() {
   const { profile } = useAuthStore();
   const greeting = getGreeting();
   const quote = getDailyQuote();
+  const { data: habits } = useHabitsWithStats();
+  const allHabitsDone = habits && habits.length > 0 && habits.every((h) => h.completedToday);
 
   return (
     <>
+      <Confetti trigger={!!allHabitsDone} />
       <Topbar title="Дашборд" />
       <div className="p-4 lg:p-6 space-y-6">
         <div>

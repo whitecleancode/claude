@@ -5,19 +5,25 @@ import { Droplets, Plus, Minus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
 
-const GOAL = 8;
-
 function getStorageKey(): string {
   const d = new Date();
   return `water-${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
 
+function getWaterGoal(): number {
+  if (typeof window === "undefined") return 8;
+  const saved = localStorage.getItem("water-goal");
+  return saved ? Number(saved) : 8;
+}
+
 export function WaterWidget() {
   const [glasses, setGlasses] = useState(0);
+  const [goal, setGoal] = useState(8);
 
   useEffect(() => {
     const saved = localStorage.getItem(getStorageKey());
     if (saved) setGlasses(Number(saved));
+    setGoal(getWaterGoal());
   }, []);
 
   const update = (n: number) => {
@@ -33,10 +39,10 @@ export function WaterWidget() {
           <Droplets className="h-4 w-4 text-neon-cyan" />
           Водный баланс
         </h3>
-        <span className="text-xs text-slate-400">{glasses} / {GOAL} стаканов</span>
+        <span className="text-xs text-slate-400">{glasses} / {goal} стаканов</span>
       </div>
 
-      <ProgressBar value={glasses} max={GOAL} color="cyan" />
+      <ProgressBar value={glasses} max={goal} color="cyan" />
 
       <div className="flex items-center justify-center gap-4 mt-3">
         <button
@@ -46,7 +52,7 @@ export function WaterWidget() {
           <Minus className="h-4 w-4" />
         </button>
         <div className="flex gap-1">
-          {Array.from({ length: GOAL }, (_, i) => (
+          {Array.from({ length: goal }, (_, i) => (
             <div
               key={i}
               className={`h-6 w-2 rounded-full transition-all ${
