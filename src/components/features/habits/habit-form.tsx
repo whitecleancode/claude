@@ -45,6 +45,10 @@ export function HabitForm({ isOpen, onClose, habit }: HabitFormProps) {
   const [customDays, setCustomDays] = useState<number[]>(
     habit?.custom_days ?? []
   );
+  const [reminderTime, setReminderTime] = useState(() => {
+    if (typeof window === "undefined" || !habit) return "";
+    return localStorage.getItem(`habit-reminder-${habit.id}`) ?? "";
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -73,8 +77,16 @@ export function HabitForm({ isOpen, onClose, habit }: HabitFormProps) {
 
     if (isEdit) {
       await updateHabit.mutateAsync({ ...result.data, id: habit.id });
+      if (reminderTime) {
+        localStorage.setItem(`habit-reminder-${habit.id}`, reminderTime);
+      } else {
+        localStorage.removeItem(`habit-reminder-${habit.id}`);
+      }
     } else {
-      await createHabit.mutateAsync(result.data);
+      const created = await createHabit.mutateAsync(result.data);
+      if (reminderTime && created?.id) {
+        localStorage.setItem(`habit-reminder-${created.id}`, reminderTime);
+      }
     }
     onClose();
   };
@@ -163,6 +175,18 @@ export function HabitForm({ isOpen, onClose, habit }: HabitFormProps) {
             </div>
           </div>
         )}
+
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-slate-300">
+            Напоминание (необязательно)
+          </label>
+          <input
+            type="time"
+            value={reminderTime}
+            onChange={(e) => setReminderTime(e.target.value)}
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200 outline-none focus:border-neon-cyan/50 focus:ring-1 focus:ring-neon-cyan/30"
+          />
+        </div>
 
         <div className="flex gap-3 pt-2">
           <Button

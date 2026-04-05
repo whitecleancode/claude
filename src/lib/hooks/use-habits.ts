@@ -109,6 +109,42 @@ export function useHabitLogsForHabit(habitId: string, startDate: string, endDate
   });
 }
 
+export function useArchivedHabits() {
+  const { user } = useAuthStore();
+
+  return useQuery({
+    queryKey: ["habits_archived", user?.id],
+    queryFn: async (): Promise<Habit[]> => {
+      const { data, error } = await getSupabase()
+        .from("habits")
+        .select("*")
+        .eq("is_archived", true)
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+}
+
+export function useRestoreHabit() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await getSupabase()
+        .from("habits")
+        .update({ is_archived: false })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["habits"] });
+      queryClient.invalidateQueries({ queryKey: ["habits_archived"] });
+    },
+  });
+}
+
 export function useCreateHabit() {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();

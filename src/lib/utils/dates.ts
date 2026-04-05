@@ -53,6 +53,29 @@ export function calculateStreak(
   return streak;
 }
 
+export function calculateBestStreak(completedDates: string[]): number {
+  if (completedDates.length === 0) return 0;
+
+  const sorted = [...new Set(completedDates)].sort();
+  let best = 1;
+  let current = 1;
+
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = new Date(sorted[i - 1]);
+    const curr = new Date(sorted[i]);
+    const diffDays = Math.round((curr.getTime() - prev.getTime()) / 86400000);
+
+    if (diffDays === 1) {
+      current++;
+      if (current > best) best = current;
+    } else {
+      current = 1;
+    }
+  }
+
+  return best;
+}
+
 export function getCompletionRate(
   completedDates: string[],
   totalDays: number

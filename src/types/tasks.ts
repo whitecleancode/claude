@@ -10,9 +10,12 @@ export type TaskCategoryInsert = Database["public"]["Tables"]["task_categories"]
 export type TaskPriority = Task["priority"];
 export type TaskStatus = Task["status"];
 
+export type TaskSort = "priority" | "due_date" | "created_at" | "alphabetical";
+
 export interface TaskFilters {
   status?: TaskStatus | "all";
   priority?: TaskPriority | "all";
   categoryId?: string | null;
   search?: string;
+  sort?: TaskSort;
 }

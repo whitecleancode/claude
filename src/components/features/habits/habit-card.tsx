@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Pencil, Trash2, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Pencil, Trash2, Loader2, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { StreakBadge } from "./streak-badge";
 import { HabitTracker } from "./habit-tracker";
@@ -16,6 +17,12 @@ interface HabitCardProps {
 
 export function HabitCard({ habit, completedDates, onEdit }: HabitCardProps) {
   const deleteHabit = useDeleteHabit();
+  const [reminderTime, setReminderTime] = useState<string | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(`habit-reminder-${habit.id}`);
+    setReminderTime(saved);
+  }, [habit.id]);
 
   return (
     <Card hoverable className="space-y-3 group">
@@ -33,6 +40,12 @@ export function HabitCard({ habit, completedDates, onEdit }: HabitCardProps) {
           </h3>
         </Link>
         <div className="flex items-center gap-2">
+          {reminderTime && (
+            <span className="flex items-center gap-0.5 text-[10px] text-slate-500">
+              <Clock className="h-3 w-3" />
+              {reminderTime}
+            </span>
+          )}
           <StreakBadge streak={habit.currentStreak} />
           {onEdit && (
             <button

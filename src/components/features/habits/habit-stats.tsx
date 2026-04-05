@@ -5,7 +5,7 @@ import { format, startOfMonth, endOfMonth, getDay, subMonths, addMonths } from "
 import { ru } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { toDateString, getMonthDays, calculateStreak, getCompletionRate } from "@/lib/utils/dates";
+import { toDateString, getMonthDays, calculateStreak, calculateBestStreak, getCompletionRate } from "@/lib/utils/dates";
 import { useHabitLogsForHabit } from "@/lib/hooks/use-habits";
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
@@ -26,6 +26,7 @@ export function HabitStats({ habitId, color }: HabitStatsProps) {
   const totalDays = days.length;
   const rate = getCompletionRate(completedDates, totalDays);
   const streak = calculateStreak(completedDates);
+  const bestStreak = calculateBestStreak(completedDates);
 
   // Day of week offset for the first day (Monday = 0)
   const firstDayOfWeek = (getDay(days[0]) + 6) % 7;
@@ -33,7 +34,7 @@ export function HabitStats({ habitId, color }: HabitStatsProps) {
   return (
     <div className="space-y-4">
       {/* Stats row */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <Card className="p-4">
           <p className="text-xs text-slate-400">Выполнение</p>
           <p className="text-2xl font-bold mt-1">{rate}%</p>
@@ -42,6 +43,10 @@ export function HabitStats({ habitId, color }: HabitStatsProps) {
         <Card className="p-4">
           <p className="text-xs text-slate-400">Текущая серия</p>
           <p className="text-2xl font-bold mt-1">{streak} дн.</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-xs text-slate-400">Лучший стрик</p>
+          <p className="text-2xl font-bold mt-1 text-neon-amber">{bestStreak} дн.</p>
         </Card>
       </div>
 

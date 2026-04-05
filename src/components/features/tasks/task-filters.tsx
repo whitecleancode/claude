@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils/cn";
-import type { TaskFilters, TaskStatus, TaskPriority } from "@/types/tasks";
+import type { TaskFilters, TaskStatus, TaskPriority, TaskSort } from "@/types/tasks";
 
 interface TaskFiltersBarProps {
   filters: TaskFilters;
@@ -13,6 +13,13 @@ const statusTabs: { value: TaskStatus | "all"; label: string }[] = [
   { value: "todo", label: "К выполнению" },
   { value: "in_progress", label: "В работе" },
   { value: "done", label: "Готово" },
+];
+
+const sortOptions: { value: TaskSort; label: string }[] = [
+  { value: "priority", label: "По приоритету" },
+  { value: "due_date", label: "По дедлайну" },
+  { value: "created_at", label: "По дате" },
+  { value: "alphabetical", label: "По алфавиту" },
 ];
 
 const priorityOptions: { value: TaskPriority | "all"; label: string }[] = [
@@ -46,7 +53,7 @@ export function TaskFiltersBar({ filters, onChange }: TaskFiltersBarProps) {
         ))}
       </div>
 
-      {/* Priority filter + search */}
+      {/* Priority filter + sort + search */}
       <div className="flex gap-2">
         <select
           value={filters.priority ?? "all"}
@@ -59,6 +66,22 @@ export function TaskFiltersBar({ filters, onChange }: TaskFiltersBarProps) {
           className="h-9 px-2 rounded-lg bg-white/5 border border-white/10 text-sm text-foreground appearance-none cursor-pointer"
         >
           {priorityOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <select
+          value={filters.sort ?? "priority"}
+          onChange={(e) =>
+            onChange({
+              ...filters,
+              sort: e.target.value as TaskSort,
+            })
+          }
+          className="h-9 px-2 rounded-lg bg-white/5 border border-white/10 text-sm text-foreground appearance-none cursor-pointer"
+        >
+          {sortOptions.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
