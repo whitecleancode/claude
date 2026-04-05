@@ -102,6 +102,10 @@ body {
   animation: card-in 0.3s ease-out both;
 }
 
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}
+
 /* ===== Glass Card ===== */
 .glass-card {
   background: var(--glass-bg-fallback);

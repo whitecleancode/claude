@@ -7,6 +7,9 @@ import { TasksWidget } from "@/components/features/dashboard/tasks-widget";
 import { NutritionWidget } from "@/components/features/dashboard/nutrition-widget";
 import { WaterWidget } from "@/components/features/dashboard/water-widget";
 import { WeeklyRadar } from "@/components/features/dashboard/weekly-radar";
+import { DailyProgress } from "@/components/features/dashboard/daily-progress";
+import { StreakCounter } from "@/components/features/dashboard/streak-counter";
+import { MoodWidget } from "@/components/features/dashboard/mood-widget";
 
 const QUOTES = [
   "Дисциплина — это выбор между тем, чего ты хочешь сейчас, и тем, чего ты хочешь больше всего.",
@@ -76,6 +79,12 @@ export default function DashboardPage() {
           </p>
         </div>
 
+        {/* Daily Progress */}
+        <DailyProgress />
+
+        {/* Streak Counter */}
+        <StreakCounter />
+
         {/* Weekly Radar */}
         <WeeklyRadar />
 
@@ -84,6 +93,7 @@ export default function DashboardPage() {
           <TasksWidget />
           <WaterWidget />
           <NutritionWidget />
+          <MoodWidget />
         </div>
       </div>
     </>

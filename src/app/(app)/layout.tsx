@@ -6,6 +6,8 @@ import { useAuthStore } from "@/lib/stores/auth-store";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { BottomNav } from "@/components/layout/bottom-nav";
+import { PageTransition } from "@/components/layout/page-transition";
+import { QuickActionsFAB } from "@/components/features/dashboard/quick-actions-fab";
 import { useEffect } from "react";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
@@ -27,7 +29,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-surface-primary">
       <Sidebar />
       <MobileNav />
-      <main className="flex-1 min-w-0 pb-20 lg:pb-0" style={{ paddingBottom: "calc(4rem + var(--safe-bottom))" }}>{children}</main>
+      <main className="flex-1 min-w-0 pb-20 lg:pb-0" style={{ paddingBottom: "calc(4rem + var(--safe-bottom))" }}>
+        <PageTransition>{children}</PageTransition>
+      </main>
+      <QuickActionsFAB />
       <BottomNav />
     </div>
   );
