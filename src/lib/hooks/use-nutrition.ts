@@ -119,6 +119,59 @@ export function useDeleteNutritionLog() {
   });
 }
 
+export function useCopyMealToToday() {
+  const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+
+  return useMutation({
+    mutationFn: async (logs: NutritionLog[]) => {
+      const today = new Date().toISOString().split("T")[0];
+      const inserts = logs.map((log) => ({
+        name: log.name,
+        meal_type: log.meal_type,
+        calories: log.calories,
+        protein: log.protein,
+        fat: log.fat,
+        carbs: log.carbs,
+        logged_date: today,
+        user_id: user!.id,
+      }));
+      const { error } = await getSupabase()
+        .from("nutrition_logs")
+        .insert(inserts);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["nutrition_logs"] });
+    },
+  });
+}
+
+export function useWeeklyNutritionLogs() {
+  const { user } = useAuthStore();
+  const today = new Date();
+  const dates: string[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    dates.push(d.toISOString().split("T")[0]);
+  }
+
+  return useQuery({
+    queryKey: ["nutrition_logs_weekly", user?.id, dates[0]],
+    queryFn: async (): Promise<NutritionLog[]> => {
+      const { data, error } = await getSupabase()
+        .from("nutrition_logs")
+        .select("*")
+        .gte("logged_date", dates[0])
+        .lte("logged_date", dates[6]);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+}
+
 export function useUpdateNutritionGoal() {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();

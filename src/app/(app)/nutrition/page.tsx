@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { format, addDays, subDays } from "date-fns";
 import { ru } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, Plus, Settings2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Settings2, Copy } from "lucide-react";
 import { toDateString } from "@/lib/utils/dates";
 import { Topbar } from "@/components/layout/topbar";
 import { Card } from "@/components/ui/card";
@@ -13,10 +13,12 @@ import { MacroRings } from "@/components/features/nutrition/macro-rings";
 import { MealCard } from "@/components/features/nutrition/meal-card";
 import { MealLogForm } from "@/components/features/nutrition/meal-log-form";
 import { GoalsForm } from "@/components/features/nutrition/goals-form";
+import { WeeklyCaloriesChart } from "@/components/features/nutrition/weekly-calories-chart";
 import {
   useNutritionLogs,
   useNutritionGoal,
   useDailySummary,
+  useCopyMealToToday,
 } from "@/lib/hooks/use-nutrition";
 import { MEAL_TYPES } from "@/lib/utils/constants";
 import type { MealType } from "@/types/nutrition";
@@ -32,6 +34,8 @@ export default function NutritionPage() {
   const { data: logs, isLoading, error } = useNutritionLogs(dateStr);
   const { data: goal } = useNutritionGoal();
   const summary = useDailySummary(logs);
+  const copyMeal = useCopyMealToToday();
+  const isToday = dateStr === toDateString(new Date());
 
   const openMealForm = (mealType: MealType) => {
     setEditEntry(null);
@@ -85,6 +89,9 @@ export default function NutritionPage() {
           <MacroRings summary={summary} goal={goal ?? null} />
         </Card>
 
+        {/* Weekly chart */}
+        <WeeklyCaloriesChart />
+
         {/* Meals by type */}
         {isLoading && (
           <div className="space-y-3">
@@ -116,13 +123,26 @@ export default function NutritionPage() {
                       </span>
                     )}
                   </h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => openMealForm(mealType)}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    {!isToday && mealLogs.length > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyMeal.mutate(mealLogs)}
+                        loading={copyMeal.isPending}
+                        title="Копировать на сегодня"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openMealForm(mealType)}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 {mealLogs.length === 0 && (

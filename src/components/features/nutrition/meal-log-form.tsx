@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { useCreateNutritionLog, useUpdateNutritionLog } from "@/lib/hooks/use-nutrition";
 import { nutritionLogSchema } from "@/lib/validators/nutrition";
 import { useFoodSearch, type FoodResult } from "@/lib/hooks/use-food-search";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, Star } from "lucide-react";
+import { getFavorites, addFavorite, removeFavorite, isFavorite, type FavoriteFood } from "@/lib/utils/favorites";
 import type { MealType, NutritionLog } from "@/types/nutrition";
 
 interface MealLogFormProps {
@@ -50,6 +51,11 @@ export function MealLogForm({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { results, isLoading } = useFoodSearch(nameQuery);
+  const [favs, setFavs] = useState<FavoriteFood[]>([]);
+
+  useEffect(() => {
+    setFavs(getFavorites());
+  }, [isOpen]);
 
   // Pre-fill when editing
   useEffect(() => {
@@ -166,6 +172,7 @@ export function MealLogForm({
               placeholder="Начните вводить... (напр. курица)"
               value={nameQuery}
               onChange={(e) => setNameQuery(e.target.value)}
+              onFocus={() => { if (nameQuery.length === 0 && favs.length > 0) setShowDropdown(true); }}
               error={errors.name}
               autoComplete="off"
             />
@@ -178,23 +185,63 @@ export function MealLogForm({
             </div>
           </div>
 
-          {showDropdown && results.length > 0 && (
+          {showDropdown && (results.length > 0 || (nameQuery.length === 0 && favs.length > 0)) && (
             <div className="absolute z-50 mt-1 w-full rounded-lg border border-white/10 bg-surface-secondary shadow-lg overflow-hidden max-h-60 overflow-y-auto">
+              {/* Favorites section (shown when no search query) */}
+              {nameQuery.length === 0 && favs.length > 0 && (
+                <>
+                  <div className="px-3 py-1.5 text-[10px] font-medium text-neon-amber uppercase tracking-wider bg-white/[0.03]">
+                    <Star className="h-3 w-3 inline mr-1" />Избранное
+                  </div>
+                  {favs.map((food, idx) => (
+                    <button
+                      key={`fav-${idx}`}
+                      type="button"
+                      className="w-full px-3 py-2 text-left hover:bg-white/5 transition-colors border-b border-white/5"
+                      onClick={() => selectFood(food)}
+                    >
+                      <div className="text-sm font-medium text-foreground truncate">{food.name}</div>
+                      <div className="text-xs text-slate-400 mt-0.5">
+                        {food.calories} ккал · Б {food.protein}г · Ж {food.fat}г · У {food.carbs}г
+                      </div>
+                    </button>
+                  ))}
+                </>
+              )}
+              {/* Search results */}
               {results.map((food, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  className="w-full px-3 py-2.5 text-left hover:bg-white/5 transition-colors border-b border-white/5 last:border-0"
-                  onClick={() => selectFood(food)}
-                >
-                  <div className="text-sm font-medium text-foreground truncate">
-                    {food.name}
-                  </div>
-                  <div className="text-xs text-slate-400 mt-0.5">
-                    {food.calories} ккал · Б {food.protein}г · Ж {food.fat}г · У {food.carbs}г
-                    <span className="text-slate-500 ml-1">(на 100г)</span>
-                  </div>
-                </button>
+                <div key={idx} className="flex items-center border-b border-white/5 last:border-0">
+                  <button
+                    type="button"
+                    className="flex-1 px-3 py-2.5 text-left hover:bg-white/5 transition-colors"
+                    onClick={() => selectFood(food)}
+                  >
+                    <div className="text-sm font-medium text-foreground truncate">
+                      {food.name}
+                    </div>
+                    <div className="text-xs text-slate-400 mt-0.5">
+                      {food.calories} ккал · Б {food.protein}г · Ж {food.fat}г · У {food.carbs}г
+                      <span className="text-slate-500 ml-1">(на 100г)</span>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isFavorite(food.name)) {
+                        setFavs(removeFavorite(food.name));
+                      } else {
+                        setFavs(addFavorite(food));
+                      }
+                    }}
+                    className="px-2 cursor-pointer"
+                  >
+                    <Star
+                      className={`h-4 w-4 transition-colors ${
+                        isFavorite(food.name) ? "text-neon-amber fill-neon-amber" : "text-slate-600"
+                      }`}
+                    />
+                  </button>
+                </div>
               ))}
             </div>
           )}
